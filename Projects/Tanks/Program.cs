@@ -155,22 +155,37 @@ while (Tanks.Contains(Player) && Tanks.Count > 1)
 
 		if (tank.IsShooting)
 		{
-			tank.Bullet = new Bullet()
+			// Calculate the potential bullet position
+			int bulletX = tank.Direction switch
 			{
-				X = tank.Direction switch
-				{
-					Direction.Left => tank.X - 3,
-					Direction.Right => tank.X + 3,
-					_ => tank.X,
-				},
-				Y = tank.Direction switch
-				{
-					Direction.Up => tank.Y - 2,
-					Direction.Down => tank.Y + 2,
-					_ => tank.Y,
-				},
-				Direction = tank.Direction,
+				Direction.Left => tank.X - 3,
+				Direction.Right => tank.X + 3,
+				_ => tank.X,
 			};
+			int bulletY = tank.Direction switch
+			{
+				Direction.Up => tank.Y - 2,
+				Direction.Down => tank.Y + 2,
+				_ => tank.Y,
+			};
+
+			// Create a temporary bullet to check for collision
+			var tempBullet = new Bullet
+			{
+				X = bulletX,
+				Y = bulletY,
+				Direction = tank.Direction
+			};
+
+			// Check if the bullet would spawn in a wall
+			bool initialCollision = BulletCollisionCheck(tempBullet, out _);
+
+			// Only create the bullet if there's no initial collision
+			if (!initialCollision)
+			{
+				tank.Bullet = tempBullet;
+			}
+
 			tank.IsShooting = false;
 			continue;
 		}
